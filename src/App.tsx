@@ -1,9 +1,15 @@
-import React, { useState } from 'react'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { Box, Container, Typography, CssBaseline } from '@mui/material'
-import ContactForm from './components/ContactForm'
-import FormPreview from './components/FormPreview'
-import { FormData } from './types/form'
+import React, { useState, useEffect } from "react";
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  TextField, 
+  Paper, 
+  Divider,
+  Alert,
+  CssBaseline
+} from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 // MUIテーマの作成
 const theme = createTheme({
@@ -18,25 +24,18 @@ const theme = createTheme({
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   },
-})
+});
 
 function App() {
-  const [formData, setFormData] = useState<FormData | null>(null)
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  // 入力テキストの状態管理
+  const [inputText, setInputText] = useState("");
+  // ログメッセージの状態管理
+  const [log, setLog] = useState("");
 
-  const handleFormSubmit = (data: FormData) => {
-    setFormData(data)
-    setIsPreviewMode(true)
-  }
-
-  const handleBackToForm = () => {
-    setIsPreviewMode(false)
-  }
-
-  const handleReset = () => {
-    setFormData(null)
-    setIsPreviewMode(false)
-  }
+  // inputTextが変更されたときに実行されるuseEffect
+  useEffect(() => {
+    setLog(`入力内容が更新されました: ${inputText}`);
+  }, [inputText]); // inputText が変わったときだけ実行される
 
   return (
     <ThemeProvider theme={theme}>
@@ -49,30 +48,54 @@ function App() {
         }}
       >
         <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant="h3" component="h1" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
-              フォームアプリケーション
+          <Typography variant="h3" component="h1" gutterBottom sx={{ color: 'white', textAlign: 'center', mb: 4 }}>
+            リアルタイムフォームアプリ
+          </Typography>
+          
+          {/* フォーム部分 */}
+          <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+            <Typography variant="h5" component="h2" gutterBottom>
+              入力フォーム
             </Typography>
-            <Typography variant="h6" sx={{ color: 'white', opacity: 0.9 }}>
-              美しく使いやすいコンタクトフォーム
-            </Typography>
-          </Box>
+            <TextField
+              fullWidth
+              label="テキストを入力してください"
+              variant="outlined"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="ここに入力してください"
+            />
+          </Paper>
 
-          <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-            {!isPreviewMode ? (
-              <ContactForm onSubmit={handleFormSubmit} />
-            ) : (
-              <FormPreview 
-                data={formData!} 
-                onBack={handleBackToForm}
-                onReset={handleReset}
-              />
-            )}
-          </Box>
+          {/* 表示部分 */}
+          <Paper elevation={3} sx={{ p: 3, backgroundColor: '#f9f9f9' }}>
+            <Typography variant="h5" component="h2" gutterBottom>
+              リアルタイム表示
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                入力内容:
+              </Typography>
+              <Alert severity={inputText ? "info" : "warning"}>
+                {inputText || '（空文字）'}
+              </Alert>
+            </Box>
+
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                ログ:
+              </Typography>
+              <Alert severity="success">
+                {log}
+              </Alert>
+            </Box>
+          </Paper>
         </Container>
       </Box>
     </ThemeProvider>
-  )
+  );
 }
 
-export default App 
+export default App; 
